@@ -5,66 +5,97 @@ import (
 )
 
 func TestExecReturnCodeSuccess(t *testing.T) {
-	if _, _, status, err := Exec("true", []string{}, ""); err != nil {
+	c := &CommandInfo{
+		Command: "true",
+		Args:    []string{},
+	}
+
+	if err := c.Exec(); err != nil {
 		t.Fatalf("Errored: %v", err)
 	} else {
-		if status != 0 {
+		if c.Result.Status != 0 {
 			t.Fatalf("Expected exit code: 0")
 		}
 	}
 }
 
 func TestExecReturnCodeFailure(t *testing.T) {
-	if _, _, status, err := Exec("false", []string{}, ""); err == nil {
+	c := &CommandInfo{
+		Command: "false",
+		Args:    []string{},
+	}
+
+	if err := c.Exec(); err == nil {
 		t.Fatalf("Expected an error")
 	} else {
-		if status != 1 {
+		if c.Result.Status != 1 {
 			t.Fatal("Expected exit code: 1")
 		}
 	}
 }
 
 func TestExecStdout(t *testing.T) {
-	if stdout, stderr, status, err := Exec("bash", []string{"-c", "echo foo"}, ""); err != nil {
+	c := &CommandInfo{
+		Command: "bash",
+		Args: []string{
+			"-c",
+			"echo foo",
+		},
+	}
+
+	if err := c.Exec(); err != nil {
 		t.Fatalf("Error: %v", err)
 	} else {
-		if stderr != "" {
-			t.Fatal("Expected stdout to be empty")
+		if c.Result.Stderr != "" {
+			t.Fatalf("Expected stderr to be empty, got %s", c.Result.Stderr)
 		}
-		if stdout != "foo\n" {
-			t.Fatalf("Expected 'foo' to be printed to stdout. Got: %s", stdout)
+		if c.Result.Stdout != "foo\n" {
+			t.Fatalf("Expected 'foo' to be printed to stdout, got: %s", c.Result.Stdout)
 		}
-		if status != 0 {
-			t.Fatalf("Expected exit code: 0")
+		if c.Result.Status != 0 {
+			t.Fatalf("Expected exit code 0, got %d", c.Result.Status)
 		}
 	}
 }
 
 func TestExecStderr(t *testing.T) {
-	if stdout, stderr, status, err := Exec("bash", []string{"-c", "echo foo 1>&2"}, ""); err != nil {
+	c := &CommandInfo{
+		Command: "bash",
+		Args: []string{
+			"-c",
+			"echo foo 1>&2",
+		},
+	}
+
+	if err := c.Exec(); err != nil {
 		t.Fatalf("Error: %v", err)
 	} else {
-		if stdout != "" {
-			t.Fatal("Expected stdout to be empty")
+		if c.Result.Stdout != "" {
+			t.Fatalf("Expected stdout to be empty, got %s", c.Result.Stdout)
 		}
-		if stderr != "foo\n" {
-			t.Fatalf("Expected 'foo' to be printed to stderr. Got: %s", stderr)
+		if c.Result.Stderr != "foo\n" {
+			t.Fatalf("Expected 'foo' to be printed to stderr, got: %s", c.Result.Stderr)
 		}
-		if status != 0 {
-			t.Fatalf("Expected exit code: 0")
+		if c.Result.Status != 0 {
+			t.Fatalf("Expected exit code 0, got %d", c.Result.Status)
 		}
 	}
 }
 
 func TestExecFailedToStart(t *testing.T) {
-	if stdout, stderr, status, err := Exec("foo", []string{}, ""); err == nil {
+	c := &CommandInfo{
+		Command: "foo",
+		Args:    []string{},
+	}
+
+	if err := c.Exec(); err == nil {
 		t.Fatal("Expected the 'foo' command would not run")
 	} else {
-		if status != 0 {
+		if c.Result.Status != 0 {
 			t.Fatal("Return code should be uninitialized i.e. 0")
 		}
-		if stdout != "" || stderr != "" {
-			t.Fatal("Both stdout and stderr should be empty")
+		if c.Result.Stdout != "" || c.Result.Stderr != "" {
+			t.Fatalf("Both stdout and stderr should be empty, got stdout:'%s', stderr:'%s'", c.Result.Stdout, c.Result.Stderr)
 		}
 	}
 }

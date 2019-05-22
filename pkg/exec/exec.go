@@ -7,23 +7,36 @@ import (
 	"syscall"
 )
 
-// Exec executes a given command with specific arguments
-func Exec(command string, args []string, dir string) (stdout, stderr string, status int, err error) {
-	stdout = ""
-	stderr = ""
-	status = 0
+// CommandInfo is used to configure a command and it's arguments
+type CommandInfo struct {
+	Command, Dir string
+	Args         []string
+	Result       *CommandResult
+}
 
+// CommandResult handles information about the command execution
+type CommandResult struct {
+	Stdout, Stderr string
+	Status         int
+}
+
+// Exec executes a given command with specific arguments
+func (c *CommandInfo) Exec() (err error) {
+	// Initialize output
+	c.Result = &CommandResult{}
+
+	// Instanciate exec handler
 	cmd := exec.Cmd{}
 
-	cmd.Path, err = exec.LookPath(command)
+	cmd.Path, err = exec.LookPath(c.Command)
 	if err != nil {
 		return
 	}
 
-	cmd.Args = append([]string{cmd.Path}, args...)
+	cmd.Args = append([]string{cmd.Path}, c.Args...)
 
-	if dir != "" {
-		cmd.Dir = dir
+	if c.Dir != "" {
+		cmd.Dir = c.Dir
 	}
 
 	var outBuf, errBuf bytes.Buffer
@@ -37,7 +50,7 @@ func Exec(command string, args []string, dir string) (stdout, stderr string, sta
 	if cmdErr := cmd.Wait(); cmdErr != nil {
 		if exitErr, ok := cmdErr.(*exec.ExitError); ok {
 			if cmdStatus, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-				status = cmdStatus.ExitStatus()
+				c.Result.Status = cmdStatus.ExitStatus()
 				err = fmt.Errorf("exit code: %d", cmdStatus.ExitStatus())
 			}
 		} else {
@@ -45,7 +58,7 @@ func Exec(command string, args []string, dir string) (stdout, stderr string, sta
 		}
 	}
 
-	stdout = outBuf.String()
-	stderr = errBuf.String()
+	c.Result.Stdout = outBuf.String()
+	c.Result.Stderr = errBuf.String()
 	return
 }
