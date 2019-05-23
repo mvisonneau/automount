@@ -15,11 +15,6 @@ func runCli() (c *cli.App) {
 	c.EnableBashCompletion = true
 
 	c.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:   "dry-run",
-			EnvVar: "AUTOMOUNT_DRY_RUN",
-			Usage:  "only display what would have been done",
-		},
 		cli.StringFlag{
 			Name:   "log-level",
 			EnvVar: "AUTOMOUNT_LOG_LEVEL",
