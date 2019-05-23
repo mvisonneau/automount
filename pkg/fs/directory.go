@@ -39,8 +39,7 @@ func (d *Directory) Delete() error {
 }
 
 func (d *Directory) Exists() (bool, error) {
-	file, err := os.Open(d.Path)
-	defer file.Close()
+	fi, err := os.Lstat(d.Path)
 
 	if os.IsNotExist(err) {
 		return false, nil
@@ -50,12 +49,7 @@ func (d *Directory) Exists() (bool, error) {
 		return false, err
 	}
 
-	f, err := file.Stat()
-	if err != nil {
-		return false, err
-	}
-
-	if !f.IsDir() {
+	if !fi.IsDir() {
 		return false, fmt.Errorf("%s exists but is not a directory", d.Path)
 	}
 

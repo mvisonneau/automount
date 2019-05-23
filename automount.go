@@ -2,87 +2,159 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"os/user"
+	"time"
 
 	"github.com/jaypipes/ghw"
 	"github.com/mvisonneau/automount/pkg/fs"
-)
-
-var (
-	fsType                  = "ext4"
-	mountPoint              = "/mnt/test"
-	permissions os.FileMode = 0755
+	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
 )
 
 const (
 	label = "formatted_by_automount"
 )
 
-func main() {
-	if user, err := user.Current(); err != nil {
-		panic(fmt.Errorf("Unable to determine current user"))
-	} else if user.Uid != "0" {
-		panic(fmt.Errorf("You have to run this function as root"))
+func executeMount(ctx *cli.Context) error {
+	if err := configure(ctx); err != nil {
+		return cli.NewExitError(err, 1)
 	}
 
-	block, err := ghw.Block()
+	var device *fs.Device
+	isDeviceFormatted := false
+	fsType := ctx.GlobalString("fstype")
 
-	if err != nil {
-		fmt.Printf("Error getting block storage info: %v", err)
+	mountPoint := ctx.Args().First()
+	if mountPoint == "" {
+		return cli.NewExitError(fmt.Errorf("You must provide the mountpoint path"), 1)
 	}
 
-	fmt.Printf("Found %v disk(s), total size of %v bytes\n", len(block.Disks), block.TotalPhysicalBytes)
+	mode := os.FileMode(ctx.GlobalInt("mountpoint-mode"))
 
-	// Parse current fstab
-	mounts, err := fs.GetMounts()
-	if err != nil {
-		panic(err)
-	}
-
-	for _, disk := range block.Disks {
-		if len(disk.Partitions) > 0 {
-			fmt.Printf("/dev/%v has partitions, skipping\n", disk.Name)
-			continue
+	if ctx.GlobalString("device") != "auto" {
+		log.Infof("Attempting to mount '%s' block device at '%s'", ctx.GlobalString("device"), mountPoint)
+		device = &fs.Device{Path: ctx.GlobalString("device")}
+		if exists, err := device.Exists(); err != nil || !exists {
+			return exit(cli.NewExitError(fmt.Errorf("%s does not exist or is not a block device", device.Path), 1))
 		}
-
-		d := fs.Device{Path: fmt.Sprintf("/dev/%v", disk.Name)}
-		m := fs.Directory{Path: mountPoint}
-		deviceFsType, _ := d.GetFSType()
-		if len(deviceFsType) > 0 {
-			fmt.Printf("%v is formatted (%v), skipping\n", d.Path, deviceFsType)
-			continue
-		}
-
-		fmt.Printf("%v is available, formatting to %s and mounting to %s\n", d.Path, fsType, mountPoint)
-		if err := d.CreateFS(fsType, label); err != nil {
-			panic(err)
-		}
-
-		// Create the mount point directory and ensure permissions
-		m.EnsureExists(permissions)
-
-		// Check if it is already configured in /etc/fstab otherwise amend the config
-		mount := &fs.Mount{
-			Spec:    d.Path,
-			File:    m.Path,
-			VfsType: fsType,
-			MntOps:  map[string]string{"defaults": ""},
-			Freq:    0,
-			PassNo:  0,
-		}
-
-		if !mounts.Exists(mount.File) {
-			mounts.Add(mount)
-
-			if err := mounts.WriteFstab(); err != nil {
-				panic(err)
+		if deviceFsType, _ := device.GetFSType(); len(deviceFsType) == 0 {
+			log.Infof("%s is not formatted, will format it.", device.Path)
+		} else {
+			if deviceFsType == fsType {
+				log.Infof("%s is formatted to '%s' as expected, continuing..", device.Path, fsType)
+				isDeviceFormatted = true
+			} else {
+				return exit(cli.NewExitError(fmt.Errorf("Cannot mount device '%s' (%s) as %s", device.Path, deviceFsType, fsType), 1))
 			}
 		}
+	} else {
+		log.Infof("No device specified, trying to find one automatically")
 
-		// Mount it
-		if err := mount.Mount(); err != nil {
-			panic(err)
+		block, err := ghw.Block()
+		if err != nil {
+			return exit(cli.NewExitError(fmt.Errorf("Error getting block storage info: %v", err), 1))
+		}
+
+		log.Infof("Found %v disk(s), total size of %v GB", len(block.Disks), math.Ceil(float64(block.TotalPhysicalBytes/1024/1024/1024)))
+
+		for _, disk := range block.Disks {
+			if len(disk.Partitions) > 0 {
+				log.Infof("/dev/%v has partitions, skipping", disk.Name)
+				continue
+			}
+
+			foundDevice := &fs.Device{Path: fmt.Sprintf("/dev/%v", disk.Name)}
+			if deviceFsType, _ := foundDevice.GetFSType(); len(deviceFsType) > 0 {
+				log.Infof("%s is formatted (%v), skipping", device.Path, deviceFsType)
+				continue
+			}
+
+			device = foundDevice
+			log.Infof("%s is available, picking this one!", device.Path)
+			break
 		}
 	}
+
+	if !isDeviceFormatted {
+		log.Infof("Formatting device %s to %s", device.Path, fsType)
+		if err := device.CreateFS(fsType, label); err != nil {
+			return exit(cli.NewExitError(err, 1))
+		}
+	}
+
+	// Parse current fstab
+	log.Info("Parsing /etc/fstab")
+	mounts, err := fs.GetMounts()
+	if err != nil {
+		return exit(cli.NewExitError(err, 1))
+	}
+	log.Infof("Found %d entries in /etc/fstab", len(*mounts))
+
+	// Create the mount point directory and ensure permissions
+	log.Infof("Ensuring that mountpoint %s exists with correct permissions (%d)", mountPoint, mode)
+	directory := fs.Directory{Path: mountPoint}
+	directory.EnsureExists(mode)
+
+	// Check if it is already configured in /etc/fstab otherwise amend the config
+	mount := &fs.Mount{
+		Spec:    device.Path,
+		File:    directory.Path,
+		VfsType: fsType,
+		MntOps:  map[string]string{"defaults": ""},
+		Freq:    0,
+		PassNo:  0,
+	}
+
+	if !mounts.Exists(mount.File) {
+		log.Infof("%s is not configured within fstab, appending configuration", device.Path)
+		mounts.Add(mount)
+
+		log.Info("Writing configuration to /etc/fstab")
+		if err := mounts.WriteFstab(); err != nil {
+			return exit(cli.NewExitError(err, 1))
+		}
+	}
+
+	// Mount it
+	log.Infof("Attempting to mount %s to %s", device.Path, mountPoint)
+	if err := mount.Mount(); err != nil {
+		return exit(cli.NewExitError(err, 1))
+	}
+	log.Infof("Mounted!")
+
+	return exit(nil)
+}
+
+func configure(ctx *cli.Context) error {
+	if !isRunningUserRoot() {
+		return fmt.Errorf("You must be running as root")
+	}
+
+	logger := &Logger{
+		Level:  ctx.GlobalString("log-level"),
+		Format: ctx.GlobalString("log-format"),
+	}
+
+	return logger.Configure()
+}
+
+func isRunningUserRoot() bool {
+	if user, err := user.Current(); err != nil {
+		return false
+	} else if user.Uid != "0" {
+		return false
+	}
+	return true
+}
+
+func exit(err *cli.ExitError) error {
+	defer log.Debugf("Executed in %s, exiting..", time.Since(start))
+	if err != nil {
+		log.Error(err.Error())
+		return cli.NewExitError("", err.ExitCode())
+	}
+
+	return nil
 }
