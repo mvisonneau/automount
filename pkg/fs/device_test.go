@@ -74,6 +74,36 @@ func TestDeviceCreateFS(t *testing.T) {
 	}
 }
 
+func TestDeviceCreateFSError(t *testing.T) {
+	var d = &Device{Path: generateRandomRAMDevicePath()}
+	if err := d.CreateFS("foo", "bar"); err == nil {
+		t.Fatal("Expected to get an error")
+	}
+}
+
+func TestDeviceGetFSInfoError(t *testing.T) {
+	var d = &Device{Path: generateRandomRAMDevicePath()}
+	if _, err := d.getFSInfo("foo"); err == nil {
+		t.Fatal("Expected to get an error")
+	}
+}
+
+func TestDeviceExists(t *testing.T) {
+	var d = &Device{Path: generateRandomRAMDevicePath()}
+	if exists, err := d.Exists(); err != nil || exists {
+		t.Fatalf("Expected device '%s' to not exist", d.Path)
+	}
+
+	if err := createRAMDisk(d.Path, testFSType, testFSLabel, testFSSize); err != nil {
+		t.Fatalf("Errored: %v", err)
+	}
+	defer deleteRAMDisk(d.Path)
+
+	if exists, err := d.Exists(); err != nil || !exists {
+		t.Fatalf("Expected device '%s' to exist : %v", d.Path, err)
+	}
+}
+
 // createRamDisk creates a block device in RAM
 func createRAMDisk(path, fsType, fsLabel string, size uint32) error {
 	c := exec.CommandInfo{

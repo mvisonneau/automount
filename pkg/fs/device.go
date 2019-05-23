@@ -40,8 +40,8 @@ func (d *Device) Exists() (bool, error) {
 		return false, err
 	}
 
-	if fi.Mode() != os.ModeDevice {
-		return false, fmt.Errorf("%s exists but is not a device", d.Path)
+	if fsType, _ := d.GetFSType(); fi.Mode() != os.ModeDevice && fsType == "" {
+		return false, fmt.Errorf("%s exists but is not a block device (%v)", d.Path, fi.Mode())
 	}
 
 	return true, nil
@@ -58,8 +58,8 @@ func (d *Device) CreateFS(fsType, label string) error {
 		},
 	}
 
-	if err := c.Exec(); err != nil {
-		return err
+	if err := c.Exec(); err != nil || c.Result.Status != 0 {
+		return fmt.Errorf("Error whilst creating the FS %v%v", c.Result.Stdout, c.Result.Stderr)
 	}
 
 	return nil
@@ -79,8 +79,8 @@ func (d *Device) getFSInfo(kind string) (string, error) {
 	}
 
 	err := c.Exec()
-	if err != nil && c.Result.Status != 2 {
-		return "", err
+	if err != nil || c.Result.Status != 0 {
+		return "", fmt.Errorf("Error whilst fetching filesystem information %v%v", c.Result.Stdout, c.Result.Stderr)
 	}
 
 	return strings.Trim(c.Result.Stdout, "\n"), nil

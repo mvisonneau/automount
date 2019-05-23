@@ -8,6 +8,7 @@ func TestExecReturnCodeSuccess(t *testing.T) {
 	c := &CommandInfo{
 		Command: "true",
 		Args:    []string{},
+		Dir:     "/",
 	}
 
 	if err := c.Exec(); err != nil {
