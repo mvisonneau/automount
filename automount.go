@@ -77,6 +77,11 @@ func executeMount(ctx *cli.Context) error {
 		}
 	}
 
+	if device == nil {
+		log.Warnf("No available device found, exiting")
+		return exit(nil)
+	}
+
 	if !isDeviceFormatted {
 		log.Infof("Formatting device %s to %s", device.Path, fsType)
 		if err := device.CreateFS(fsType, label); err != nil {
