@@ -1,20 +1,22 @@
-package main
+package cli
 
 import (
+	"time"
+
 	"github.com/urfave/cli"
+	"github.com/mvisonneau/automount/command"
 )
 
-var version = "<devel>"
+// Init : Generates CLI configuration for the application
+func Init(version *string, start time.Time) (app *cli.App) {
+	app = cli.NewApp()
+	app.Name = "automount"
+	app.Version = *version
+	app.Compiled = time.Now()
+	app.Usage = "Automatically format and mount block devices"
+	app.EnableBashCompletion = true
 
-// runCli : Generates cli configuration for the application
-func runCli() (c *cli.App) {
-	c = cli.NewApp()
-	c.Name = "automount"
-	c.Version = version
-	c.Usage = "Automatically format and mount block devices"
-	c.EnableBashCompletion = true
-
-	c.Flags = []cli.Flag{
+	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "log-level",
 			EnvVar: "AUTOMOUNT_LOG_LEVEL",
@@ -47,14 +49,18 @@ func runCli() (c *cli.App) {
 		},
 	}
 
-	c.Commands = []cli.Command{
+	app.Commands = []cli.Command{
 		{
 			Name:      "mount",
 			Usage:     "format and mount a block device somewhere",
 			ArgsUsage: "<mountpoint>",
-			Action:    executeMount,
+			Action:    command.Mount,
 		},
 	}
+
+	app.Metadata = map[string]interface{}{
+    "startTime": start,
+  }
 
 	return
 }

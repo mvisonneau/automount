@@ -1,13 +1,17 @@
 package main
 
 import (
+	"log"
 	"os"
 	"time"
+
+	"github.com/mvisonneau/automount/cli"
 )
 
-var start time.Time
+var version = ""
 
 func main() {
-	start = time.Now()
-	runCli().Run(os.Args)
+	if err := cli.Init(&version, time.Now()).Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }

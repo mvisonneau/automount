@@ -32,7 +32,7 @@ test: ## Run the tests against the codebase
 
 .PHONY: install
 install: ## Build and install locally the binary (dev purpose)
-	go install .
+	go install -ldflags "$(LDFLAGS)" .
 
 .PHONY: build
 build: setup ## Build the binary

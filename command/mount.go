@@ -1,11 +1,9 @@
-package main
+package command
 
 import (
 	"fmt"
 	"math"
 	"os"
-	"os/user"
-	"time"
 
 	"github.com/jaypipes/ghw"
 	"github.com/mvisonneau/automount/pkg/fs"
@@ -14,10 +12,11 @@ import (
 )
 
 const (
-	label = "formatted_by_automount"
+	label = "automount"
 )
 
-func executeMount(ctx *cli.Context) error {
+// Mount actually formats, then mount a FS
+func Mount(ctx *cli.Context) error {
 	if err := configure(ctx); err != nil {
 		return cli.NewExitError(err, 1)
 	}
@@ -28,7 +27,7 @@ func executeMount(ctx *cli.Context) error {
 
 	mountPoint := ctx.Args().First()
 	if mountPoint == "" {
-		return cli.NewExitError(fmt.Errorf("You must provide the mountpoint path"), 1)
+		return exit(fmt.Errorf("You must provide the mountpoint path"), 1)
 	}
 
 	mode := os.FileMode(ctx.GlobalInt("mountpoint-mode"))
@@ -37,7 +36,7 @@ func executeMount(ctx *cli.Context) error {
 		log.Infof("Attempting to mount '%s' block device at '%s'", ctx.GlobalString("device"), mountPoint)
 		device = &fs.Device{Path: ctx.GlobalString("device")}
 		if exists, err := device.Exists(); err != nil || !exists {
-			return exit(cli.NewExitError(fmt.Errorf("%s does not exist or is not a block device", device.Path), 1))
+			return exit(fmt.Errorf("%s does not exist or is not a block device", device.Path), 1)
 		}
 		if deviceFsType, _ := device.GetFSType(); len(deviceFsType) == 0 {
 			log.Infof("%s is not formatted, will format it.", device.Path)
@@ -46,7 +45,7 @@ func executeMount(ctx *cli.Context) error {
 				log.Infof("%s is formatted to '%s' as expected, continuing..", device.Path, fsType)
 				isDeviceFormatted = true
 			} else {
-				return exit(cli.NewExitError(fmt.Errorf("Cannot mount device '%s' (%s) as %s", device.Path, deviceFsType, fsType), 1))
+				return exit(fmt.Errorf("Cannot mount device '%s' (%s) as %s", device.Path, deviceFsType, fsType), 1)
 			}
 		}
 	} else {
@@ -54,7 +53,7 @@ func executeMount(ctx *cli.Context) error {
 
 		block, err := ghw.Block()
 		if err != nil {
-			return exit(cli.NewExitError(fmt.Errorf("Error getting block storage info: %v", err), 1))
+			return exit(fmt.Errorf("Error getting block storage info: %v", err), 1)
 		}
 
 		log.Infof("Found %v disk(s), total size of %v GB", len(block.Disks), math.Ceil(float64(block.TotalPhysicalBytes/1024/1024/1024)))
@@ -67,7 +66,7 @@ func executeMount(ctx *cli.Context) error {
 
 			foundDevice := &fs.Device{Path: fmt.Sprintf("/dev/%v", disk.Name)}
 			if deviceFsType, _ := foundDevice.GetFSType(); len(deviceFsType) > 0 {
-				log.Infof("%s is formatted (%v), skipping", device.Path, deviceFsType)
+				log.Infof("%s is formatted (%v), skipping", foundDevice.Path, deviceFsType)
 				continue
 			}
 
@@ -79,13 +78,13 @@ func executeMount(ctx *cli.Context) error {
 
 	if device == nil {
 		log.Warnf("No available device found, exiting")
-		return exit(nil)
+		return exit(nil, 0)
 	}
 
 	if !isDeviceFormatted {
 		log.Infof("Formatting device %s to %s", device.Path, fsType)
 		if err := device.CreateFS(fsType, label); err != nil {
-			return exit(cli.NewExitError(err, 1))
+			return exit(err, 1)
 		}
 	}
 
@@ -93,7 +92,7 @@ func executeMount(ctx *cli.Context) error {
 	log.Info("Parsing /etc/fstab")
 	mounts, err := fs.GetMounts()
 	if err != nil {
-		return exit(cli.NewExitError(err, 1))
+		return exit(err, 1)
 	}
 	log.Infof("Found %d entries in /etc/fstab", len(*mounts))
 
@@ -118,48 +117,16 @@ func executeMount(ctx *cli.Context) error {
 
 		log.Info("Writing configuration to /etc/fstab")
 		if err := mounts.WriteFstab(); err != nil {
-			return exit(cli.NewExitError(err, 1))
+			return exit(err, 1)
 		}
 	}
 
 	// Mount it
 	log.Infof("Attempting to mount %s to %s", device.Path, mountPoint)
 	if err := mount.Mount(); err != nil {
-		return exit(cli.NewExitError(err, 1))
+		return exit(err, 1)
 	}
 	log.Infof("Mounted!")
 
-	return exit(nil)
-}
-
-func configure(ctx *cli.Context) error {
-	if !isRunningUserRoot() {
-		return fmt.Errorf("You must be running as root")
-	}
-
-	logger := &Logger{
-		Level:  ctx.GlobalString("log-level"),
-		Format: ctx.GlobalString("log-format"),
-	}
-
-	return logger.Configure()
-}
-
-func isRunningUserRoot() bool {
-	if user, err := user.Current(); err != nil {
-		return false
-	} else if user.Uid != "0" {
-		return false
-	}
-	return true
-}
-
-func exit(err *cli.ExitError) error {
-	defer log.Debugf("Executed in %s, exiting..", time.Since(start))
-	if err != nil {
-		log.Error(err.Error())
-		return cli.NewExitError("", err.ExitCode())
-	}
-
-	return nil
+	return exit(nil, 0)
 }
