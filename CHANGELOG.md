@@ -6,8 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### FEATURES
+- Added `validate` function that can list the availability of dependencies
+
 ### BUGFIXES
 - Added support for /dev/xvd* devices
+
 ### ENHANCEMENTS
 - Refactored and cleaned up code
 

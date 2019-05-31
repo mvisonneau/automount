@@ -49,8 +49,9 @@ USAGE:
    automount [global options] command [command options] [arguments...]
 
 COMMANDS:
-     mount    format and mount a block device somewhere
-     help, h  Shows a list of commands or help for one command
+     mount     format and mount a block device somewhere
+     validate  check the status of dependencies
+     help, h   Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --log-level level                  log level (debug,info,warn,fatal,panic) (default: "info") [$AUTOMOUNT_LOG_LEVEL]

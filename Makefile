@@ -69,7 +69,7 @@ dev-env: ## Build a local development environment using Docker
 		-w /go/src/github.com/mvisonneau/$(NAME) \
 		--cap-add SYS_ADMIN \
 		golang:1.12 \
-		/bin/bash -c 'make setup; make install; bash'
+		/bin/bash -c 'apt update; apt install -y lvm2 mdadm; make setup; make install; bash'
 
 .PHONY: sign-drone
 sign-drone: ## Sign Drone CI configuration

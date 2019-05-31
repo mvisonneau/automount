@@ -56,6 +56,12 @@ func Init(version *string, start time.Time) (app *cli.App) {
 			ArgsUsage: "<mountpoint>",
 			Action:    command.Mount,
 		},
+		{
+			Name:      "validate",
+			Usage:     "check the status of dependencies",
+			ArgsUsage: "",
+			Action:    command.Validate,
+		},
 	}
 
 	app.Metadata = map[string]interface{}{

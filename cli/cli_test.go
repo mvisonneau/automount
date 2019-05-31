@@ -6,7 +6,8 @@ import (
 )
 
 func TestRunCli(t *testing.T) {
-	app := Init("0.0.0", time.Now())
+	version := "0.0.0"
+	app := Init(&version, time.Now())
 	if app.Name != "automount" {
 		t.Fatalf("Expected app.Name to be automount, got '%s'", app.Name)
 	}
