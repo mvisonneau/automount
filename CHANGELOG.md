@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### FEATURES
 - Added `validate` function that can list the availability of dependencies
+- Added flag `--reuse-formatted-devices` to be able to reformat unused/unmounted devices
 
 ### BUGFIXES
 - Added support for /dev/xvd* devices

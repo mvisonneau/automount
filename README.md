@@ -58,6 +58,7 @@ GLOBAL OPTIONS:
    --log-format format                log format (json,text) (default: "text") [$AUTOMOUNT_LOG_FORMAT]
    --device value, -d value           block device to mount (default: "auto") [$AUTOMOUNT_DEVICE]
    --fstype value, -t value           fs type to use for the block device to mount (default: "ext4") [$AUTOMOUNT_FSTYPE]
+   --reuse-formatted-devices          reuse formatted but unconfigured devices (will reformat them!) [$AUTOMOUNT_REUSE_FORMATTED_DEVICES]
    --mountpoint-mode value, -m value  file permissions to ensure on the mountpoint (default: 493) [$AUTOMOUNT_MOUNTPOINT_MODE]
    --help, -h                         show help
    --version, -v                      print the version

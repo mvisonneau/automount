@@ -41,6 +41,11 @@ func Init(version *string, start time.Time) (app *cli.App) {
 			Usage:  "fs type to use for the block device to mount",
 			Value:  "ext4",
 		},
+		cli.BoolFlag{
+			Name:   "reuse-formatted-devices",
+			EnvVar: "AUTOMOUNT_REUSE_FORMATTED_DEVICES",
+			Usage:  "reuse formatted but unconfigured devices (will reformat them!)",
+		},
 		cli.IntFlag{
 			Name:   "mountpoint-mode, m",
 			EnvVar: "AUTOMOUNT_MOUNTPOINT_MODE",

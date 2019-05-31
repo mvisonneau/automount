@@ -32,6 +32,14 @@ func Mount(ctx *cli.Context) error {
 
 	mode := os.FileMode(ctx.GlobalInt("mountpoint-mode"))
 
+	// Parse current fstab
+	log.Info("Parsing /etc/fstab")
+	mounts, err := fs.GetMounts()
+	if err != nil {
+		return exit(err, 1)
+	}
+	log.Infof("Found %d entries in /etc/fstab", len(*mounts))
+
 	if ctx.GlobalString("device") != "auto" {
 		log.Infof("Attempting to mount '%s' block device at '%s'", ctx.GlobalString("device"), mountPoint)
 		device = &fs.Device{Path: ctx.GlobalString("device")}
@@ -65,9 +73,22 @@ func Mount(ctx *cli.Context) error {
 			}
 
 			foundDevice := &fs.Device{Path: fmt.Sprintf("/dev/%v", disk.Name)}
-			if deviceFsType, _ := foundDevice.GetFSType(); len(deviceFsType) > 0 {
-				log.Infof("%s is formatted (%v), skipping", foundDevice.Path, deviceFsType)
+			if mounts.Exists(foundDevice.Path) {
+				log.Infof("%s is already mounted, skipping..", foundDevice.Path)
 				continue
+			}
+
+			if deviceFsType, _ := foundDevice.GetFSType(); len(deviceFsType) > 0 {
+				if !ctx.GlobalBool("reuse-formatted-devices") {
+					log.Infof("%s is formatted (%v), skipping..", foundDevice.Path, deviceFsType)
+					continue
+				}
+
+				if deviceFsType != fsType {
+					log.Infof("%s is not configured but already formatted in %v, will reformat in %v", deviceFsType, fsType)
+				} else {
+					isDeviceFormatted = true
+				}
 			}
 
 			device = foundDevice
@@ -87,14 +108,6 @@ func Mount(ctx *cli.Context) error {
 			return exit(err, 1)
 		}
 	}
-
-	// Parse current fstab
-	log.Info("Parsing /etc/fstab")
-	mounts, err := fs.GetMounts()
-	if err != nil {
-		return exit(err, 1)
-	}
-	log.Infof("Found %d entries in /etc/fstab", len(*mounts))
 
 	// Create the mount point directory and ensure permissions
 	log.Infof("Ensuring that mountpoint %s exists with correct permissions (%d)", mountPoint, mode)
