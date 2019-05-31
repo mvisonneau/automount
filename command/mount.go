@@ -85,7 +85,7 @@ func Mount(ctx *cli.Context) error {
 				}
 
 				if deviceFsType != fsType {
-					log.Infof("%s is not configured but already formatted in %v, will reformat in %v", deviceFsType, fsType)
+					log.Infof("%s is not configured but already formatted in %v, will reformat in %v", foundDevice.Path, deviceFsType, fsType)
 				} else {
 					isDeviceFormatted = true
 				}
