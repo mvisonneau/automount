@@ -11,7 +11,9 @@ require (
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
+	github.com/pkg/errors v0.8.1 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli v1.20.0
 	gopkg.in/yaml.v2 v2.2.2 // indirect
+	howett.net/plist v0.0.0-20181124034731-591f970eefbb // indirect
 )
