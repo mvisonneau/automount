@@ -3,8 +3,8 @@ package cli
 import (
 	"time"
 
-	"github.com/urfave/cli"
 	"github.com/mvisonneau/automount/command"
+	"github.com/urfave/cli"
 )
 
 // Init : Generates CLI configuration for the application
@@ -42,9 +42,9 @@ func Init(version *string, start time.Time) (app *cli.App) {
 			Value:  "ext4",
 		},
 		cli.BoolFlag{
-			Name:   "reuse-formatted-devices",
-			EnvVar: "AUTOMOUNT_REUSE_FORMATTED_DEVICES",
-			Usage:  "reuse formatted but unconfigured devices (will reformat them!)",
+			Name:   "use-formatted-devices",
+			EnvVar: "AUTOMOUNT_USE_FORMATTED_DEVICES",
+			Usage:  "use formatted but unconfigured devices (will reformat them!)",
 		},
 		cli.IntFlag{
 			Name:   "mountpoint-mode, m",
@@ -70,8 +70,8 @@ func Init(version *string, start time.Time) (app *cli.App) {
 	}
 
 	app.Metadata = map[string]interface{}{
-    "startTime": start,
-  }
+		"startTime": start,
+	}
 
 	return
 }

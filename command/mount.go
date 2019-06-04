@@ -79,7 +79,7 @@ func Mount(ctx *cli.Context) error {
 			}
 
 			if deviceFsType, _ := foundDevice.GetFSType(); len(deviceFsType) > 0 {
-				if !ctx.GlobalBool("reuse-formatted-devices") {
+				if !ctx.GlobalBool("use-formatted-devices") {
 					log.Infof("%s is formatted (%v), skipping..", foundDevice.Path, deviceFsType)
 					continue
 				}
