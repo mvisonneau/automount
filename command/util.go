@@ -43,5 +43,5 @@ func exit(err error, exitCode int) *cli.ExitError {
 		return cli.NewExitError("", exitCode)
 	}
 
-	return nil
+	return cli.NewExitError("", 0)
 }
