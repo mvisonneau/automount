@@ -46,6 +46,11 @@ func Init(version *string, start time.Time) (app *cli.App) {
 			EnvVar: "AUTOMOUNT_USE_FORMATTED_DEVICES",
 			Usage:  "use formatted but unconfigured devices (will reformat them!)",
 		},
+		cli.BoolFlag{
+			Name:   "use-lvm",
+			EnvVar: "AUTOMOUNT_USE_LVM",
+			Usage:  "use LVM for the partitioning of the block devices",
+		},
 		cli.IntFlag{
 			Name:   "mountpoint-mode, m",
 			EnvVar: "AUTOMOUNT_MOUNTPOINT_MODE",

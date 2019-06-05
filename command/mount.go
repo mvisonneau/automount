@@ -7,6 +7,7 @@ import (
 
 	"github.com/jaypipes/ghw"
 	"github.com/mvisonneau/automount/pkg/fs"
+	"github.com/mvisonneau/automount/pkg/lvm"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -100,6 +101,42 @@ func Mount(ctx *cli.Context) error {
 	if device == nil {
 		log.Warnf("No available device found, exiting")
 		return exit(nil, 0)
+	}
+
+	if ctx.GlobalBool("use-lvm") {
+		log.Infof("Using LVM for managing the partitions on %s", device.Path)
+
+		if !fs.IsLvmAvailable() {
+			return exit(fmt.Errorf("LVM is not available on the OS"), 1)
+		}
+
+		log.Debugf("LVM: getting current state")
+		l, err := lvm.New()
+		if err != nil {
+			return exit(err, 1)
+		}
+
+		log.Debugf("LVM: creating physical volume")
+
+		pv, err := l.CreatePhysicalVolume(device.Path)
+		if err != nil {
+			return exit(fmt.Errorf("LVM: Error creating physical volume on %s : %v", device.Path, err), 1)
+		}
+
+		log.Debugf("LVM: creating volume group")
+		vg, err := l.CreateVolumeGroup("automount", lvm.PhysicalVolumes{pv}, []string{"automount"})
+		if err != nil {
+			return exit(fmt.Errorf("LVM: Error creating volume group : %v", err), 1)
+		}
+
+		log.Debugf("LVM: creating logical volume")
+		lv, err := l.CreateLogicalVolume("automount", vg, 0, []string{"automount"})
+		if err != nil {
+			return exit(fmt.Errorf("LVM: Error creating logical volume %v", err), 1)
+		}
+
+		log.Infof("physical volume, volume group and logical volume created, using this as a device")
+		device = &fs.Device{Path: lv.Path()}
 	}
 
 	if !isDeviceFormatted {

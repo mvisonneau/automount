@@ -40,7 +40,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 ## Usage
 
-```
+```bash
 ~$ automount
 NAME:
    automount - Automatically format and mount block devices
@@ -59,10 +59,10 @@ GLOBAL OPTIONS:
    --device value, -d value           block device to mount (default: "auto") [$AUTOMOUNT_DEVICE]
    --fstype value, -t value           fs type to use for the block device to mount (default: "ext4") [$AUTOMOUNT_FSTYPE]
    --use-formatted-devices            use formatted but unconfigured devices (will reformat them!) [$AUTOMOUNT_USE_FORMATTED_DEVICES]
+   --use-lvm                          use LVM for the partitioning of the block devices [$AUTOMOUNT_USE_LVM]
    --mountpoint-mode value, -m value  file permissions to ensure on the mountpoint (default: 493) [$AUTOMOUNT_MOUNTPOINT_MODE]
    --help, -h                         show help
    --version, -v                      print the version
-```
 
 ## Prerequisites
 
