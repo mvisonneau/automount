@@ -231,6 +231,7 @@ func (l *LVM) CreatePhysicalVolume(name string) (*PhysicalVolume, error) {
 	c := exec.CommandInfo{
 		Command: "pvcreate",
 		Args: []string{
+			"--force",
 			name,
 		},
 	}

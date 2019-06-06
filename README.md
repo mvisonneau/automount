@@ -38,6 +38,41 @@ Filesystem      Size  Used Avail Use% Mounted on
 /dev/nvme0n1    366G   69M  347G   1% /mnt/foo
 ```
 
+## It also supports LVM and has soft-raid 0 capabilities
+
+```bash
+~$ ./automount --log-level debug--use-lvm --use-all-devices mount /mnt/foo
+INFO[2019-06-06T17:28:21Z] Parsing /etc/fstab
+INFO[2019-06-06T17:28:21Z] Found 3 entries in /etc/fstab
+INFO[2019-06-06T17:28:21Z] No device specified, looking up available ones
+INFO[2019-06-06T17:28:21Z] Found 3 disk(s), total size of 315 GB
+INFO[2019-06-06T17:28:21Z] /dev/xvda has partitions, skipping
+INFO[2019-06-06T17:28:21Z] /dev/xvdb is available
+INFO[2019-06-06T17:28:21Z] /dev/xvdc is available
+INFO[2019-06-06T17:28:21Z] Using LVM for managing the partitions
+DEBU[2019-06-06T17:28:21Z] command lvm available at /sbin/lvm
+DEBU[2019-06-06T17:28:21Z] LVM: getting current state
+DEBU[2019-06-06T17:28:21Z] LVM: creating physical volume on /dev/xvdb
+DEBU[2019-06-06T17:28:21Z] LVM: creating physical volume on /dev/xvdc
+DEBU[2019-06-06T17:28:22Z] LVM: creating volume group
+DEBU[2019-06-06T17:28:23Z] LVM: creating logical volume
+INFO[2019-06-06T17:28:23Z] physical volume, volume group and logical volume created, using this as a device
+INFO[2019-06-06T17:28:23Z] /dev/automount/automount is not formatted, will format it.
+INFO[2019-06-06T17:28:23Z] Formatting device /dev/automount/automount to ext4
+INFO[2019-06-06T17:28:30Z] Ensuring that mountpoint /mnt/foo exists with correct permissions (493)
+INFO[2019-06-06T17:28:30Z] /dev/automount/automount is not configured within fstab, appending configuration
+INFO[2019-06-06T17:28:30Z] Writing configuration to /etc/fstab
+INFO[2019-06-06T17:28:30Z] Attempting to mount /dev/automount/automount to /mnt/foo
+INFO[2019-06-06T17:28:30Z] Mounted!
+DEBU[2019-06-06T17:28:30Z] Executed in 9.322286497s, exiting..
+
+~$ pvs --noheadings
+  /dev/xvdb  automount lvm2 a--   152.57g    0
+  /dev/xvdc  automount lvm2 a--   152.57g    0
+~$ lvs --noheadings
+  automount automount -wi-ao---- 305.13g
+```
+
 ## Usage
 
 ```bash
@@ -56,10 +91,11 @@ COMMANDS:
 GLOBAL OPTIONS:
    --log-level level                  log level (debug,info,warn,fatal,panic) (default: "info") [$AUTOMOUNT_LOG_LEVEL]
    --log-format format                log format (json,text) (default: "text") [$AUTOMOUNT_LOG_FORMAT]
-   --device value, -d value           block device to mount (default: "auto") [$AUTOMOUNT_DEVICE]
+   --devices value, -d value          block device(s) to mount [$AUTOMOUNT_DEVICES]
    --fstype value, -t value           fs type to use for the block device to mount (default: "ext4") [$AUTOMOUNT_FSTYPE]
    --use-formatted-devices            use formatted but unconfigured devices (will reformat them!) [$AUTOMOUNT_USE_FORMATTED_DEVICES]
    --use-lvm                          use LVM for the partitioning of the block devices [$AUTOMOUNT_USE_LVM]
+   --use-all-devices                  use all available devices in a soft-raid fashion (requires --use-lvm as well) [$AUTOMOUNT_USE_ALL_DEVICES]
    --mountpoint-mode value, -m value  file permissions to ensure on the mountpoint (default: 493) [$AUTOMOUNT_MOUNTPOINT_MODE]
    --help, -h                         show help
    --version, -v                      print the version

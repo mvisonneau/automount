@@ -18,6 +18,9 @@ type Device struct {
 	Path string
 }
 
+// Devices handles a list of Device
+type Devices []*Device
+
 // GetFSType returns the type of the filesystem of a given device
 func (d *Device) GetFSType() (string, error) {
 	return d.getFSInfo(blkidFSType)
@@ -84,4 +87,12 @@ func (d *Device) getFSInfo(kind string) (string, error) {
 	}
 
 	return strings.Trim(c.Result.Stdout, "\n"), nil
+}
+
+// First returns the first occurence of the slice if it exists
+func (devices *Devices) First() *Device {
+	if len(*devices) == 0 {
+		return nil
+	}
+	return (*devices)[0]
 }

@@ -29,11 +29,10 @@ func Init(version *string, start time.Time) (app *cli.App) {
 			Usage:  "log `format` (json,text)",
 			Value:  "text",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:   "device, d",
-			EnvVar: "AUTOMOUNT_DEVICE",
-			Usage:  "block device to mount",
-			Value:  "auto",
+			EnvVar: "AUTOMOUNT_DEVICES",
+			Usage:  "block device(s) to mount",
 		},
 		cli.StringFlag{
 			Name:   "fstype, t",
@@ -50,6 +49,11 @@ func Init(version *string, start time.Time) (app *cli.App) {
 			Name:   "use-lvm",
 			EnvVar: "AUTOMOUNT_USE_LVM",
 			Usage:  "use LVM for the partitioning of the block devices",
+		},
+		cli.BoolFlag{
+			Name:   "use-all-devices",
+			EnvVar: "AUTOMOUNT_USE_ALL_DEVICES",
+			Usage:  "use all available devices in a soft-raid fashion (requires --use-lvm as well)",
 		},
 		cli.IntFlag{
 			Name:   "mountpoint-mode, m",
