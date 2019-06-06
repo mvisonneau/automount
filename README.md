@@ -20,7 +20,7 @@ nvme1n1     259:1    0    10G  0 disk
 └─nvme1n1p1 259:2    0    10G  0 part /
 
 # Automatically format and mount it where you need it.
-~$ automount mount /mnt/foo
+~$ sudo automount mount /mnt/foo
 INFO[2019-05-23T08:21:14Z] No device specified, trying to find one automatically
 INFO[2019-05-23T08:21:14Z] Found 2 disk(s), total size of 382 GB
 INFO[2019-05-23T08:21:14Z] /dev/nvme0n1 is available, picking this one!
@@ -41,7 +41,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 ## It also supports LVM and has soft-raid 0 capabilities
 
 ```bash
-~$ ./automount --log-level debug--use-lvm --use-all-devices mount /mnt/foo
+~$ sudo automount --log-level debug--use-lvm --use-all-devices mount /mnt/foo
 INFO[2019-06-06T17:28:21Z] Parsing /etc/fstab
 INFO[2019-06-06T17:28:21Z] Found 3 entries in /etc/fstab
 INFO[2019-06-06T17:28:21Z] No device specified, looking up available ones
@@ -99,11 +99,23 @@ GLOBAL OPTIONS:
    --mountpoint-mode value, -m value  file permissions to ensure on the mountpoint (default: 493) [$AUTOMOUNT_MOUNTPOINT_MODE]
    --help, -h                         show help
    --version, -v                      print the version
+```
 
 ## Prerequisites
 
-- Linux OS
-- `blkid`, `lsblk`, `mkfs.*` commands available
+At the moment `automount` only works as `root` on linux based operating systems.
+
+In order to list the dependencies, you can run the following command
+
+```bash
+~$ sudo automount validate
+  COMMAND | MANDATORY | AVAILABLE
++---------+-----------+-----------+
+  blkid   | YES       | YES
+  lsblk   | YES       | YES
+  lvm     | NO        | YES
+  mdadm   | NO        | YES
+```
 
 ## Contribute
 
