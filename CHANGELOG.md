@@ -3,31 +3,28 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
 ## [0.1.0] - 2019-06-06
 
-### FEATURES
+### Added
 
 - Added `validate` function that can list the availability of dependencies
 - Added flag `--reuse-formatted-devices` to be able to reformat unused/unmounted devices
 - Added flag `--use-lvm` in order to leverage LVM for the partioning of the devices
 - Added flag `--use-all-devices` to use all available devices
 - Updated `--devices` to `--device` and allowed to specify it multiple times
-
-### BUGFIXES
-
 - Added support for /dev/xvd* devices
 
-### ENHANCEMENTS
+### Changed
 
 - Refactored and cleaned up code
 
 ## [0.0.1] - 2019-05-23
 
-### FEATURES
+### Added
 
 - Working state of the app
 - Formatting and mounting capabilities
