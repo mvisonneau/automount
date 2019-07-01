@@ -41,7 +41,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 ## It also supports LVM and has soft-raid 0 capabilities
 
 ```bash
-~$ sudo automount --log-level debug--use-lvm --use-all-devices mount /mnt/foo
+~$ sudo automount --log-level debug --use-lvm --use-all-devices mount /mnt/foo
 INFO[2019-06-06T17:28:21Z] Parsing /etc/fstab
 INFO[2019-06-06T17:28:21Z] Found 3 entries in /etc/fstab
 INFO[2019-06-06T17:28:21Z] No device specified, looking up available ones
