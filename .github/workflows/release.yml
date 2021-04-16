@@ -41,11 +41,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Snapcraft config
-        uses: samuelmeuli/action-snapcraft@v1
-        with:
-          snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
-
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -60,7 +55,7 @@ jobs:
       - name: Install goreleaser
         uses: goreleaser/goreleaser-action@v2
         with:
-          version: v0.159.0
+          version: v0.162.0
           install-only: true
       
       - name: Run goreleaser
