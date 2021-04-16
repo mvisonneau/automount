@@ -2,3 +2,4 @@ automount
 dist
 coverage.out
 vendor
+!cmd/automount

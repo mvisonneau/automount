@@ -15,7 +15,7 @@ const (
 )
 
 func TestDeviceGetFSType(t *testing.T) {
-	var d = &Device{Path: generateRandomRAMDevicePath()}
+	d := &Device{Path: generateRandomRAMDevicePath()}
 
 	if err := createRAMDisk(d.Path, testFSType, testFSLabel, testFSSize); err != nil {
 		t.Fatalf("Errored: %v", err)
@@ -32,7 +32,7 @@ func TestDeviceGetFSType(t *testing.T) {
 }
 
 func TestDeviceGetFSLabel(t *testing.T) {
-	var d = &Device{Path: generateRandomRAMDevicePath()}
+	d := &Device{Path: generateRandomRAMDevicePath()}
 	if err := createRAMDisk(d.Path, testFSType, testFSLabel, testFSSize); err != nil {
 		t.Fatalf("Errored: %v", err)
 	}
@@ -48,7 +48,7 @@ func TestDeviceGetFSLabel(t *testing.T) {
 }
 
 func TestDeviceCreateFS(t *testing.T) {
-	var d = &Device{Path: generateRandomRAMDevicePath()}
+	d := &Device{Path: generateRandomRAMDevicePath()}
 	if err := createRAMDisk(d.Path, testFSType, testFSLabel, testFSSize); err != nil {
 		t.Fatalf("Errored: %v", err)
 	}
@@ -75,21 +75,21 @@ func TestDeviceCreateFS(t *testing.T) {
 }
 
 func TestDeviceCreateFSError(t *testing.T) {
-	var d = &Device{Path: generateRandomRAMDevicePath()}
+	d := &Device{Path: generateRandomRAMDevicePath()}
 	if err := d.CreateFS("foo", "bar"); err == nil {
 		t.Fatal("Expected to get an error")
 	}
 }
 
 func TestDeviceGetFSInfoError(t *testing.T) {
-	var d = &Device{Path: generateRandomRAMDevicePath()}
+	d := &Device{Path: generateRandomRAMDevicePath()}
 	if _, err := d.getFSInfo("foo"); err == nil {
 		t.Fatal("Expected to get an error")
 	}
 }
 
 func TestDeviceExists(t *testing.T) {
-	var d = &Device{Path: generateRandomRAMDevicePath()}
+	d := &Device{Path: generateRandomRAMDevicePath()}
 	if exists, err := d.Exists(); err != nil || exists {
 		t.Fatalf("Expected device '%s' to not exist", d.Path)
 	}
@@ -119,11 +119,7 @@ func createRAMDisk(path, fsType, fsLabel string, size uint32) error {
 		},
 	}
 
-	if err := c.Exec(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.Exec()
 }
 
 // deleteRamDisk delete a ram block device
@@ -136,11 +132,7 @@ func deleteRAMDisk(path string) error {
 		},
 	}
 
-	if err := c.Exec(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.Exec()
 }
 
 func generateRandomRAMDevicePath() string {

@@ -1,4 +1,4 @@
-package command
+package cmd
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/mvisonneau/automount/pkg/fs"
 	"github.com/olekukonko/tablewriter"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -15,9 +15,9 @@ var (
 )
 
 // Validate checks if dependencies are available on the host
-func Validate(ctx *cli.Context) error {
+func Validate(ctx *cli.Context) (int, error) {
 	if err := configure(ctx); err != nil {
-		return cli.NewExitError(err, 1)
+		return 1, err
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
@@ -30,7 +30,7 @@ func Validate(ctx *cli.Context) error {
 	table.Append([]string{"mdadm", "NO", boolToString(fs.IsMdadmAvailable())})
 
 	table.Render()
-	return nil
+	return 0, nil
 }
 
 func boolToString(b bool) string {

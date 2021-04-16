@@ -7,6 +7,17 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Changed
+
+- Updated go fom 1.12 to 1.16
+- Migrated CI to GitHub actions
+- Added new lint tests and fixed lint issues
+- Refactored codebase more or less according to golang best practices
+- Updated all dependencies to their latest versions
+- Fixed some unhandled error cases
+- Implemented goreleaser to generate artifacts
+- Moved default branch to `main`
+
 ## [0.1.0] - 2019-06-06
 
 ### Added

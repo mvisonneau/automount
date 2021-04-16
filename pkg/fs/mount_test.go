@@ -55,7 +55,7 @@ func TestMount(t *testing.T) {
 		}
 
 		d := &Directory{Path: randomPath}
-		if err := d.EnsureExists(0777); err != nil {
+		if err := d.EnsureExists(0o777); err != nil {
 			t.Fatalf("Errored: %v", err)
 		}
 		defer d.Delete()

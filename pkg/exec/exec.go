@@ -25,7 +25,7 @@ func (c *CommandInfo) Exec() (err error) {
 	// Initialize output
 	c.Result = &CommandResult{}
 
-	// Instanciate exec handler
+	// Instantiate exec handler
 	cmd := exec.Cmd{}
 
 	cmd.Path, err = exec.LookPath(c.Command)

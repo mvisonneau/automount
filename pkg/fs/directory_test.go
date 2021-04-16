@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	testFileMode = 0755
+	testFileMode = 0o755
 )
 
 func TestDirectoryCreate(t *testing.T) {
@@ -60,7 +60,7 @@ func TestDirectoryEnsureExists(t *testing.T) {
 		}
 	}
 
-	if err := d.SetMode(0755); err != nil {
+	if err := d.SetMode(0o755); err != nil {
 		t.Fatalf("Errored: %v", err)
 	}
 
@@ -102,15 +102,15 @@ func TestDirectorySetMode(t *testing.T) {
 
 	defer d.Delete()
 
-	if err := d.SetMode(0755); err != nil {
+	if err := d.SetMode(0o755); err != nil {
 		t.Fatalf("Errored: %v", err)
 	}
 
 	if m, err := d.GetMode(); err != nil {
 		t.Fatalf("Errored: %v", err)
 	} else {
-		if m != 0755 {
-			t.Fatalf("Directory mode should be %v, got %v", 0755, m)
+		if m != 0o755 {
+			t.Fatalf("Directory mode should be %v, got %v", 0o755, m)
 		}
 	}
 }

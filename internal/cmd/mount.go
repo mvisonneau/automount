@@ -1,4 +1,4 @@
-package command
+package cmd
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/mvisonneau/automount/pkg/fs"
 	"github.com/mvisonneau/automount/pkg/lvm"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -17,59 +17,59 @@ const (
 )
 
 // Mount actually formats, then mount a FS
-func Mount(ctx *cli.Context) error {
+func Mount(ctx *cli.Context) (int, error) {
 	if err := configure(ctx); err != nil {
-		return cli.NewExitError(err, 1)
+		return 1, err
 	}
 
-	fsType := ctx.GlobalString("fstype")
-	mode := os.FileMode(ctx.GlobalInt("mountpoint-mode"))
+	fsType := ctx.String("fstype")
+	mode := os.FileMode(ctx.Int("mountpoint-mode"))
 
 	var devices *fs.Devices
 
 	mountPoint := ctx.Args().First()
 	if mountPoint == "" {
-		return exit(fmt.Errorf("You must provide the mountpoint path"), 1)
+		return 1, fmt.Errorf("you must provide the mountpoint path")
 	}
 
 	log.Info("Parsing /etc/fstab")
 	mounts, err := fs.GetMounts()
 	if err != nil {
-		return err
+		return 1, err
 	}
 	log.Infof("Found %d entries in /etc/fstab", len(*mounts))
 
-	if len(ctx.GlobalStringSlice("device")) > 0 {
-		log.Infof("Attempting to mount '%v' block device(s) at '%s'", ctx.GlobalStringSlice("device"), mountPoint)
-		for _, d := range ctx.GlobalStringSlice("device") {
+	if len(ctx.StringSlice("device")) > 0 {
+		log.Infof("Attempting to mount '%v' block device(s) at '%s'", ctx.StringSlice("device"), mountPoint)
+		for _, d := range ctx.StringSlice("device") {
 			device := &fs.Device{Path: d}
 			if exists, err := device.Exists(); err != nil || !exists {
-				return exit(fmt.Errorf("%s does not exist or is not a block device", device.Path), 1)
+				return 1, fmt.Errorf("%s does not exist or is not a block device", device.Path)
 			}
 			*devices = append(*devices, device)
 		}
 	} else {
 		log.Infof("No device specified, looking up available ones")
-		devices, err = findAvailableDevices(mounts, ctx.GlobalBool("use-formatted-devices"))
+		devices, err = findAvailableDevices(mounts, ctx.Bool("use-formatted-devices"))
 		if err != nil {
-			exit(fmt.Errorf("Error whilst looking for available devices %v", err), 1)
+			return 1, fmt.Errorf("Error whilst looking for available devices %v", err)
 		}
 	}
 
 	if len(*devices) == 0 {
 		log.Warnf("No available device found, exiting..")
-		return exit(nil, 0)
+		return 0, nil
 	}
 
 	var device *fs.Device
-	if ctx.GlobalBool("use-lvm") {
-		device, err = createLogicalVolume(devices, ctx.GlobalBool("use-all-devices"))
+	if ctx.Bool("use-lvm") {
+		device, err = createLogicalVolume(devices, ctx.Bool("use-all-devices"))
 		if err != nil {
-			return exit(err, 1)
+			return 1, err
 		}
 	} else {
 		device = devices.First()
-		log.Infof("Using block device : '%s'", device.Path)
+		log.Infof("using block device : '%s'", device.Path)
 	}
 
 	isDeviceFormatted := false
@@ -79,24 +79,26 @@ func Mount(ctx *cli.Context) error {
 		if deviceFsType == fsType {
 			log.Infof("%s is formatted to '%s' as expected, continuing..", device.Path, fsType)
 			isDeviceFormatted = true
-		} else if ctx.GlobalBool("use-formatted-devices") {
+		} else if ctx.Bool("use-formatted-devices") {
 			log.Infof("%s is not configured but already formatted in %v, will reformat in %v", device.Path, deviceFsType, fsType)
 		} else {
-			return exit(fmt.Errorf("Cannot mount device '%s' (%s) as %s", device.Path, deviceFsType, fsType), 1)
+			return 1, fmt.Errorf("cannot mount device '%s' (%s) as %s", device.Path, deviceFsType, fsType)
 		}
 	}
 
 	if !isDeviceFormatted {
 		log.Infof("Formatting device %s to %s", device.Path, fsType)
 		if err := device.CreateFS(fsType, label); err != nil {
-			return exit(err, 1)
+			return 1, err
 		}
 	}
 
 	// Create the mount point directory and ensure permissions
 	log.Infof("Ensuring that mountpoint %s exists with correct permissions (%d)", mountPoint, mode)
 	directory := fs.Directory{Path: mountPoint}
-	directory.EnsureExists(mode)
+	if err = directory.EnsureExists(mode); err != nil {
+		return 1, err
+	}
 
 	// Check if it is already configured in /etc/fstab otherwise amend the config
 	mount := &fs.Mount{
@@ -114,18 +116,18 @@ func Mount(ctx *cli.Context) error {
 
 		log.Info("Writing configuration to /etc/fstab")
 		if err := mounts.WriteFstab(); err != nil {
-			return exit(err, 1)
+			return 1, err
 		}
 	}
 
 	// Mount it
 	log.Infof("Attempting to mount %s to %s", device.Path, mountPoint)
 	if err := mount.Mount(); err != nil {
-		return exit(err, 1)
+		return 1, err
 	}
 	log.Infof("Mounted!")
 
-	return exit(nil, 0)
+	return 0, nil
 }
 
 func findAvailableDevices(mounts *fs.Mounts, reuseFormattedAndUnmounted bool) (*fs.Devices, error) {
