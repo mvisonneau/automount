@@ -15,6 +15,9 @@ builds:
     flags:
       - -trimpath
 
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}'
+
 nfpms:
   - maintainer: &author Maxime VISONNEAU <maxime.visonneau@gmail.com>
     description: &description Dynamically mount available hard drives on Linux

@@ -15,6 +15,9 @@ builds:
     flags:
       - -trimpath
 
+archives:
+  - name_template: '{{ .ProjectName }}_edge_{{ .Os }}_{{ .Arch }}'
+
 release:
   disable: true
 
