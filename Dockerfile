@@ -18,7 +18,7 @@ make build-docker
 # RELEASE CONTAINER
 ##
 
-FROM busybox:1.30-glibc
+FROM busybox:1.32.1-glibc
 
 WORKDIR /
 
