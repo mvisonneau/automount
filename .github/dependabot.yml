@@ -1,0 +1,40 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "10:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: github.com/sirupsen/logrus
+    versions:
+    - 1.7.0
+    - 1.8.0
+    - 1.8.1
+  - dependency-name: github.com/olekukonko/tablewriter
+    versions:
+    - 0.0.5
+  - dependency-name: github.com/urfave/cli
+    versions:
+    - 1.22.5
+  - dependency-name: github.com/fatih/color
+    versions:
+    - 1.10.0
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "10:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: busybox
+    versions:
+    - 1.32.1.pre.glibc
+  - dependency-name: golang
+    versions:
+    - 1.15.7
+    - 1.15.8
+    - 1.16.0
+    - 1.16.2
+    - 1.16.3
