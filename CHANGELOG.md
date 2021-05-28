@@ -48,6 +48,7 @@ and this project adheres to [0ver](https://0ver.org).
 - License
 - Readme
 
-[Unreleased]: https://github.com/mvisonneau/automount/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/mvisonneau/automount/compare/v0.1.1...HEAD
+[v0.1.1]: https://github.com/mvisonneau/automount/tree/v0.1.1
 [0.1.0]: https://github.com/mvisonneau/automount/tree/0.1.0
 [0.0.1]: https://github.com/mvisonneau/automount/tree/0.0.1
