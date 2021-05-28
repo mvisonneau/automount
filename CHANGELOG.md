@@ -7,9 +7,11 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [v0.1.1] - 2021-05-28
+
 ### Changed
 
-- Updated go fom 1.12 to 1.16
+- Updated go fom `1.12` to `1.16`
 - Migrated CI to GitHub actions
 - Added new lint tests and fixed lint issues
 - Refactored codebase more or less according to golang best practices
