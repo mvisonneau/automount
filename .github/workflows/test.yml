@@ -37,6 +37,8 @@ jobs:
 
       - name: Test
         run: make coverage
+        env:
+          SKIP_PRIVILEGED: 'true'
 
       - name: Publish coverage to coveralls.io
         uses: shogo82148/actions-goveralls@v1

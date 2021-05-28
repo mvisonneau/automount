@@ -2,6 +2,7 @@ package fs
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/mvisonneau/automount/pkg/exec"
@@ -15,6 +16,10 @@ const (
 )
 
 func TestDeviceGetFSType(t *testing.T) {
+	if os.Getenv("SKIP_PRIVILEGED") == "true" {
+		t.Skip("skipping testing in non-privileged environment")
+	}
+
 	d := &Device{Path: generateRandomRAMDevicePath()}
 
 	if err := createRAMDisk(d.Path, testFSType, testFSLabel, testFSSize); err != nil {
@@ -32,6 +37,10 @@ func TestDeviceGetFSType(t *testing.T) {
 }
 
 func TestDeviceGetFSLabel(t *testing.T) {
+	if os.Getenv("SKIP_PRIVILEGED") == "true" {
+		t.Skip("skipping testing in non-privileged environment")
+	}
+
 	d := &Device{Path: generateRandomRAMDevicePath()}
 	if err := createRAMDisk(d.Path, testFSType, testFSLabel, testFSSize); err != nil {
 		t.Fatalf("Errored: %v", err)
@@ -48,6 +57,10 @@ func TestDeviceGetFSLabel(t *testing.T) {
 }
 
 func TestDeviceCreateFS(t *testing.T) {
+	if os.Getenv("SKIP_PRIVILEGED") == "true" {
+		t.Skip("skipping testing in non-privileged environment")
+	}
+
 	d := &Device{Path: generateRandomRAMDevicePath()}
 	if err := createRAMDisk(d.Path, testFSType, testFSLabel, testFSSize); err != nil {
 		t.Fatalf("Errored: %v", err)
@@ -89,6 +102,10 @@ func TestDeviceGetFSInfoError(t *testing.T) {
 }
 
 func TestDeviceExists(t *testing.T) {
+	if os.Getenv("SKIP_PRIVILEGED") == "true" {
+		t.Skip("skipping testing in non-privileged environment")
+	}
+
 	d := &Device{Path: generateRandomRAMDevicePath()}
 	if exists, err := d.Exists(); err != nil || exists {
 		t.Fatalf("Expected device '%s' to not exist", d.Path)

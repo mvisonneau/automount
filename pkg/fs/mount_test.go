@@ -28,10 +28,11 @@ func TestIsMounted(t *testing.T) {
 	}
 }
 
+// Unfortunately github actions does not support updating worker capabilities..
+// disabling it for now
 func TestMount(t *testing.T) {
-	// Unfortunately drone.io does not support updating worker capabilities..
-	if os.Getenv("DRONE") == "true" {
-		return
+	if os.Getenv("SKIP_PRIVILEGED") == "true" {
+		t.Skip("skipping testing in non privileged environment")
 	}
 
 	s, _ := random.GenerateString(8)

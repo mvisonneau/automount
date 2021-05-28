@@ -90,6 +90,15 @@ is-git-dirty: ## Tests if git is in a dirty state
 	@git status --porcelain
 	@test $(shell git status --porcelain | grep -c .) -eq 0
 
+.PHONY: dev-env
+dev-env: ## Start a dev container for testing purposes
+	@docker run -it --rm \
+		-v $(shell pwd):/opt/$(NAME) \
+		-w /opt/$(NAME) \
+		--cap-add SYS_ADMIN \
+		--security-opt apparmor:unconfined \
+		golang:1.16
+
 .PHONY: all
 all: lint test build coverage ## Test, builds and ship package for all supported platforms
 
