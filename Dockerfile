@@ -1,4 +1,4 @@
-FROM busybox:1.33.1-glibc
+FROM busybox:1.34.0-glibc
 
 WORKDIR /
 
