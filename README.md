@@ -80,13 +80,7 @@ DEBU[2019-06-06T17:28:30Z] Executed in 9.322286497s, exiting..
 
 ```bash
 # >= 1.16
-~$ go install github.com/mvisonneau/automount/cmd/automount
-```
-
-### Homebrew
-
-```bash
-~$ brew install mvisonneau/tap/automount
+~$ go install github.com/mvisonneau/automount/cmd/automount@latest
 ```
 
 ### Docker

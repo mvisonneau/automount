@@ -7,6 +7,8 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [v0.1.2] - 2022-02-11
+
 ### Added
 
 - `quay.io` releases
@@ -61,7 +63,8 @@ and this project adheres to [0ver](https://0ver.org).
 - License
 - Readme
 
-[Unreleased]: https://github.com/mvisonneau/automount/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/mvisonneau/automount/compare/v0.1.2...HEAD
+[v0.1.2]: https://github.com/mvisonneau/automount/tree/v0.1.2
 [v0.1.1]: https://github.com/mvisonneau/automount/tree/v0.1.1
 [0.1.0]: https://github.com/mvisonneau/automount/tree/0.1.0
 [0.0.1]: https://github.com/mvisonneau/automount/tree/0.0.1
