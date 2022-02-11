@@ -29,18 +29,11 @@ nfpms:
       - deb
       - rpm
 
-brews:
-  - description: *description
-    homepage: *homepage
-    folder: Formula
-    tap:
-      owner: mvisonneau
-      name: homebrew-tap
-
 dockers:
   - image_templates:
       - 'docker.io/mvisonneau/automount:{{ .Tag }}-amd64'
       - 'ghcr.io/mvisonneau/automount:{{ .Tag }}-amd64'
+      - 'quay.io/mvisonneau/automount:{{ .Tag }}-amd64'
     ids: [automount]
     goarch: amd64
     use_buildx: true
@@ -56,8 +49,9 @@ dockers:
       - --label=org.opencontainers.image.licenses=Apache-2.0
 
   - image_templates:
-      - 'docker.io/mvisonneau/automount:{{ .Tag }}-arm64v8'
-      - 'ghcr.io/mvisonneau/automount:{{ .Tag }}-arm64v8'
+      - 'docker.io/mvisonneau/automount:{{ .Tag }}-arm64'
+      - 'ghcr.io/mvisonneau/automount:{{ .Tag }}-arm64'
+      - 'quay.io/mvisonneau/automount:{{ .Tag }}-arm64'
     ids: [automount]
     goarch: arm64
     use_buildx: true
@@ -76,12 +70,17 @@ docker_manifests:
   - name_template: docker.io/mvisonneau/automount:{{ .Tag }}
     image_templates:
       - docker.io/mvisonneau/automount:{{ .Tag }}-amd64
-      - docker.io/mvisonneau/automount:{{ .Tag }}-arm64v8
+      - docker.io/mvisonneau/automount:{{ .Tag }}-arm64
 
   - name_template: ghcr.io/mvisonneau/automount:{{ .Tag }}
     image_templates:
       - ghcr.io/mvisonneau/automount:{{ .Tag }}-amd64
-      - ghcr.io/mvisonneau/automount:{{ .Tag }}-arm64v8
+      - ghcr.io/mvisonneau/automount:{{ .Tag }}-arm64
+
+  - name_template: quay.io/mvisonneau/automount:{{ .Tag }}
+    image_templates:
+      - quay.io/mvisonneau/automount:{{ .Tag }}-amd64
+      - quay.io/mvisonneau/automount:{{ .Tag }}-arm64
 
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Tag }}_sha512sums.txt'

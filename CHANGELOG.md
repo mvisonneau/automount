@@ -7,6 +7,19 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- `quay.io` releases
+  
+### Changed
+
+- Bumped golang to `1.17`
+- Bumped most dependencies
+
+### Removed
+
+- Removed brew/tap releases
+
 ## [v0.1.1] - 2021-05-28
 
 ### Changed
