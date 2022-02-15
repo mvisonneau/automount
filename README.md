@@ -42,7 +42,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 ## It also supports LVM and has soft-raid 0 capabilities
 
 ```bash
-~$ sudo automount --log-level debug--use-lvm --use-all-devices mount /mnt/foo
+~$ sudo automount --log-level debug --use-lvm --use-all-devices mount /mnt/foo
 INFO[2019-06-06T17:28:21Z] Parsing /etc/fstab
 INFO[2019-06-06T17:28:21Z] Found 3 entries in /etc/fstab
 INFO[2019-06-06T17:28:21Z] No device specified, looking up available ones
@@ -87,8 +87,8 @@ DEBU[2019-06-06T17:28:30Z] Executed in 9.322286497s, exiting..
 
 ```bash
 ~$ docker run -it --rm docker.io/mvisonneau/automount
-or
 ~$ docker run -it --rm ghcr.io/mvisonneau/automount
+~$ docker run -it --rm quay.io/mvisonneau/automount
 ```
 
 ### Scoop
