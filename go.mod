@@ -9,7 +9,7 @@ require (
 	github.com/mvisonneau/go-helpers v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.5
+	github.com/stretchr/testify v1.8.0
 	github.com/urfave/cli/v2 v2.3.0
 )
 
